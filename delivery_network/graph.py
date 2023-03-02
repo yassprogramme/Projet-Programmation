@@ -70,12 +70,71 @@ class Graph:
     
 
     def get_path_with_power(self, src, dest, power):
-        raise NotImplementedError
-    
+        def arret(liste,dest):
+            for item in liste:
+                if item[-1]!=dest:
+                    return False
+            return True
+        def dist_trip(l): 
+            d = 0   
+            for i in range(len(l)-1):
+             for j in self.graph[l[i]]:
+                 if j[0] == l[i+1]:
+                       d += j[2]
+            return d
+        composantes=self.connected_components()
+        c=[]
+        for liste in composantes:
+            if src in liste:
+                c=liste
+        if dest not in c:
+            return None
+        
+        chemins=[[src]]
+        while not arret(chemins,dest): #si chemins est vide, ça renvoit vrai
+            q=[]
+            for p in chemins:
+                u=p[-1]
+                if u==dest:
+                    q.append(p)
+                else:
+                    for t in self.graph[u]:
+                        if not (t[0] in p) and power>=t[1]:
+                            v=[i for i in p]
+                            v.append(t[0])
+                            q.append(v)
+            chemins=q
+        if chemins==[]:
+            return None
+        else: 
+            chemin_plus_court=chemins[0]
+            for chemin in chemins[1::]:
+                if dist_trip(chemin)<dist_trip(chemin_plus_court):
+                    chemin_plus_court=chemin
+            return chemin_plus_court,chemins
+
+
+
 
     def connected_components(self):
-        raise NotImplementedError
+        composantes_connexes=[]
+        visited_nodes={noeud:False for noeud in self.nodes}
 
+        def deep_parcours(s):
+            composantes=[s]
+            for neighboor in self.graph[s]:
+                neighboor=neighboor[0]
+                if not visited_nodes[neighboor]:
+                    visited_nodes[neighboor]=True
+                    composantes+=deep_parcours(neighboor)
+            return composantes
+        
+        for s in self.nodes:
+            if not visited_nodes[s]:
+                composantes_connexes.append(deep_parcours(s))
+        return composantes_connexes
+                      
+            
 
     def connected_components_set(self):
         """
@@ -88,7 +147,21 @@ class Graph:
         """
         Should return path, min_power. 
         """
-        raise NotImplementedError
+        chemin_plus_court,chemins=self.get_path_with_power(src,dest,float("inf"))
+        def min_power_trip(l): 
+            m= 0   
+            for i in range(len(l)-1):
+             for j in self.graph[l[i]]:
+                 if j[0] == l[i+1] and j[1]>m:
+                       m= j[1]
+            return m
+        chemin_min_power=chemins[0]
+        p=min_power_trip(chemin_min_power)
+        for chemin in chemins:
+            if min_power_trip(chemin)<p:
+                chemin_min_power,p=chemin, min_power_trip(chemin)
+        return chemin_min_power,p
+
 
 
 def graph_from_file(filename):

@@ -15,5 +15,9 @@ class Test_MinimalPower(unittest.TestCase):
         g = graph_from_file("input/network.04.in")
         self.assertEqual(g.min_power(1, 4)[1], 4)
 
+    def test_network2(self):
+        g = graph_from_file("input/network.05.in")
+        self.assertEqual(g.min_power(2, 3)[1], 6)
+
 if __name__ == '__main__':
     unittest.main()
