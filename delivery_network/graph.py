@@ -1,3 +1,5 @@
+from UnionFind import UnionFind
+
 class Graph:
     """
     A class representing graphs as adjacency lists and implementing various algorithms on the graphs. Graphs in the class are not oriented. 
@@ -68,6 +70,13 @@ class Graph:
         self.graph[node2].append((node1, power_min, dist))
         self.nb_edges += 1
     
+    def get_edges(self):
+        arcs=[]
+        for node1,nodes2 in self.graph.items():
+            for node in nodes2:
+                if ((node1,node[0],node[1],node[2]) not in arcs) and ((node[0],node1,node[1],node[2]) not in arcs):
+                    arcs.append((node1,node[0],node[1],node[2]))
+        return arcs  
 
     def get_path_with_power(self, src, dest, power):
         def arret(liste,dest):
@@ -83,7 +92,6 @@ class Graph:
                        d += j[2]
             return d
         composantes=self.connected_components()
-        c=[]
         for liste in composantes:
             if src in liste:
                 c=liste
@@ -106,15 +114,11 @@ class Graph:
             chemins=q
         if chemins==[]:
             return None
-        else: 
-            chemin_plus_court=chemins[0]
+        else:
             for chemin in chemins[1::]:
                 if dist_trip(chemin)<dist_trip(chemin_plus_court):
                     chemin_plus_court=chemin
-            return chemin_plus_court,chemins
-
-
-
+            return chemin_plus_court
 
     def connected_components(self):
         composantes_connexes=[]
@@ -147,7 +151,9 @@ class Graph:
         """
         Should return path, min_power. 
         """
-        chemin_plus_court,chemins=self.get_path_with_power(src,dest,float("inf"))
+        chemin=self.get_path_with_power(src,dest,float("inf"))
+        if R==None:
+            return None 
         def min_power_trip(l): 
             m= 0   
             for i in range(len(l)-1):
@@ -157,7 +163,7 @@ class Graph:
             return m
         chemin_min_power=chemins[0]
         p=min_power_trip(chemin_min_power)
-        for chemin in chemins:
+        for chemin in chemins[1::]:
             if min_power_trip(chemin)<p:
                 chemin_min_power,p=chemin, min_power_trip(chemin)
         return chemin_min_power,p
@@ -198,3 +204,27 @@ def graph_from_file(filename):
             else:
                 raise Exception("Format incorrect")
     return g
+
+
+def kruskal(g):
+    N=g.nb_nodes
+    arcs=g.get_edges()
+    arcs.sort(key=lambda x : x[2])
+    Arbre_minimum=Graph(g.nodes)
+    ed=UnionFind(N+1)
+    index=0
+    A=0 #nb d'arcs 
+    while A!=N-1: # Cf Q.2
+        (src,dest,power,dist)=arcs[index]
+        index+=1
+
+        x=ed.find(src)
+        y=ed.find(dest)
+        
+        if x!=y:
+            Arbre_minimum.graph[src].append((dest,power,dist))
+            Arbre_minimum.graph[dest].append((src,power,dist))
+            A+=1
+            ed.Union(x,y)
+    return Arbre_minimum
+    
