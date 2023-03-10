@@ -1,5 +1,4 @@
 from UnionFind import UnionFind
-
 class Graph:
     """
     A class representing graphs as adjacency lists and implementing various algorithms on the graphs. Graphs in the class are not oriented. 
@@ -42,7 +41,8 @@ class Graph:
                 output += f"{source}-->{destination}\n"
         return output
     
-    def add_edge(self, node1, node2, power_min, dist=1):
+    def add_edge(self, node1, 
+    node2, power_min, dist=1):
         """
         Adds an edge to the graph. Graphs are not oriented, hence an edge is added to the adjacency list of both end nodes. 
 
@@ -77,48 +77,64 @@ class Graph:
                 if ((node1,node[0],node[1],node[2]) not in arcs) and ((node[0],node1,node[1],node[2]) not in arcs):
                     arcs.append((node1,node[0],node[1],node[2]))
         return arcs  
+    
+    def get_path_with_power(self,src,dest,power,visited=None,path=None):
+        if visited is None:
+            visited = set()
+        if path is None:
+            path = []
+        path = path + [src]
+        visited.add(src)
+        if src == dest:
+           return path
+        for neighbor in self.graph[src]:
+            if neighbor[0] not in visited and power>=neighbor[1]:
+                new_path = self.get_path_with_power(neighbor[0], dest,power, visited,path)
+                if new_path is not None:
+                    return new_path
+        return None
 
-    def get_path_with_power(self, src, dest, power):
-        def arret(liste,dest):
-            for item in liste:
-                if item[-1]!=dest:
-                    return False
-            return True
-        def dist_trip(l): 
-            d = 0   
-            for i in range(len(l)-1):
-             for j in self.graph[l[i]]:
-                 if j[0] == l[i+1]:
-                       d += j[2]
-            return d
-        composantes=self.connected_components()
-        for liste in composantes:
-            if src in liste:
-                c=liste
-        if dest not in c:
-            return None
-        
-        chemins=[[src]]
-        while not arret(chemins,dest): #si chemins est vide, ça renvoit vrai
-            q=[]
-            for p in chemins:
-                u=p[-1]
-                if u==dest:
-                    q.append(p)
-                else:
-                    for t in self.graph[u]:
-                        if not (t[0] in p) and power>=t[1]:
-                            v=[i for i in p]
-                            v.append(t[0])
-                            q.append(v)
-            chemins=q
-        if chemins==[]:
-            return None
-        else:
-            for chemin in chemins[1::]:
-                if dist_trip(chemin)<dist_trip(chemin_plus_court):
-                    chemin_plus_court=chemin
-            return chemin_plus_court
+    def get_path_with_powerr(self,src,dest,power):
+        pile = [(src, [src], set())]
+        while pile:
+            node, path, visited = pile.pop()
+            visited.add(node)
+            if node == dest:
+                return path
+            for neighbor in self.graph[node]:
+                if neighbor[0] not in visited and power>=neighbor[1]:
+                    pile.append((neighbor[0], path + [neighbor[0]], visited.copy()))
+        return None
+
+                                 
+    def get_min_path_with_power(self, src, dest, power): #Dijkstra
+        precedent = {x:None for x in self.nodes}
+        dejaTraite = {x:False for x in self.nodes}
+        distance =  {x:float('inf') for x in self.nodes}
+        distance[src] = 0
+        a_traiter = [(0, src)]
+        while a_traiter:
+            dist_noeud, noeud = a_traiter.pop()
+            if not dejaTraite[noeud]:
+                dejaTraite[noeud] = True
+                for voisin in self.graph[noeud]:
+                    dist_voisin = dist_noeud + voisin[2]
+                    if dist_voisin < distance[voisin[0]] and power>=voisin[1]:
+                        distance[voisin[0]] = dist_voisin
+                        precedent[voisin[0]] = noeud
+                        a_traiter.append((dist_voisin, voisin[0]))
+            a_traiter.sort(reverse=True)
+        chemin=[]
+        k=dest
+        while k!=src:
+            if k==None:
+                return None
+            else:
+                chemin.append(k)
+                k=precedent[k]
+        chemin.append(src)
+        chemin.reverse()
+        return chemin
 
     def connected_components(self):
         composantes_connexes=[]
@@ -151,23 +167,20 @@ class Graph:
         """
         Should return path, min_power. 
         """
-        chemin=self.get_path_with_power(src,dest,float("inf"))
-        if R==None:
-            return None 
-        def min_power_trip(l): 
-            m= 0   
-            for i in range(len(l)-1):
-             for j in self.graph[l[i]]:
-                 if j[0] == l[i+1] and j[1]>m:
-                       m= j[1]
-            return m
-        chemin_min_power=chemins[0]
-        p=min_power_trip(chemin_min_power)
-        for chemin in chemins[1::]:
-            if min_power_trip(chemin)<p:
-                chemin_min_power,p=chemin, min_power_trip(chemin)
-        return chemin_min_power,p
-
+        k=0
+        while self.get_path_with_power(src,dest,2**k)==None:
+            k+=1
+        list=[i for i in range(2**k+1)]
+        a = 0
+        b = len(list)-1
+        m = (a+b)//2
+        while a < b :
+            if self.get_path_with_power(src,dest,list[m])!=None:
+                b=m ##On n'exclut pas m
+            else:
+               a=m+1
+            m=(a+b)//2
+        return self.get_path_with_power(src,dest,list[a]),a
 
 
 def graph_from_file(filename):
@@ -194,12 +207,12 @@ def graph_from_file(filename):
         n, m = map(int, file.readline().split())
         g = Graph(range(1, n+1))
         for _ in range(m):
-            edge = list(map(int, file.readline().split()))
+            edge = file.readline().split()
             if len(edge) == 3:
-                node1, node2, power_min = edge
+                node1, node2, power_min = int(edge[0]),int(edge[1]),int(edge[2])
                 g.add_edge(node1, node2, power_min) # will add dist=1 by default
             elif len(edge) == 4:
-                node1, node2, power_min, dist = edge
+                node1, node2, power_min, dist = int(edge[0]),int(edge[1]),int(edge[2]),float(edge[3]) #Pour pouvoir lire 10
                 g.add_edge(node1, node2, power_min, dist)
             else:
                 raise Exception("Format incorrect")
@@ -213,8 +226,7 @@ def kruskal(g):
     Arbre_minimum=Graph(g.nodes)
     ed=UnionFind(N+1)
     index=0
-    A=0 #nb d'arcs 
-    while A!=N-1: # Cf Q.2
+    while Arbre_minimum.nb_edges!=N-1: # Cf Q.2
         (src,dest,power,dist)=arcs[index]
         index+=1
 
@@ -222,9 +234,8 @@ def kruskal(g):
         y=ed.find(dest)
         
         if x!=y:
-            Arbre_minimum.graph[src].append((dest,power,dist))
-            Arbre_minimum.graph[dest].append((src,power,dist))
-            A+=1
+            Arbre_minimum.add_edge(src,dest,power,dist)
+
             ed.Union(x,y)
     return Arbre_minimum
     
