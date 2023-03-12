@@ -1,23 +1,20 @@
 class UnionFind:
-    """Cette classe permet de gérer les ensembles disjoints. Deux éléments sont considérés dans le même ensemble 
-    s'ils ont le même parent"""
-    parent={}
-
-    #Création de n ensembles disjoints
-    def __init__(self,N):
-        for i in range(N):
-            self.parent[i]=i
-    
-    #Fonction Find 
-    def find(self,k):
-        if self.parent[k]==k:
-            return k
-        return self.find(self.parent[k])
-    
-    #Fonction Union
-    def Union(self,a,b):
-        x=self.find(a)
-        y=self.find(b)
-        self.parent[x]=y
-    
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+        
+    def Union(self, x, y):
+        root_x, root_y = self.find(x), self.find(y)
+        if root_x != root_y:
+            if self.rank[root_x] > self.rank[root_y]:
+                self.parent[root_y] = root_x
+            else:
+                self.parent[root_x] = root_y
+                if self.rank[root_x] == self.rank[root_y]:
+                    self.rank[root_y] += 1
 

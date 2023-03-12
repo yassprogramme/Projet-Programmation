@@ -1,4 +1,6 @@
 from UnionFind import UnionFind
+from collections import deque
+import heapq
 class Graph:
     """
     A class representing graphs as adjacency lists and implementing various algorithms on the graphs. Graphs in the class are not oriented. 
@@ -29,6 +31,8 @@ class Graph:
         self.graph = dict([(n, []) for n in nodes])
         self.nb_nodes = len(nodes)
         self.nb_edges = 0
+        self.edges=[]
+        self.power=[]
     
 
     def __str__(self):
@@ -69,44 +73,20 @@ class Graph:
         self.graph[node1].append((node2, power_min, dist))
         self.graph[node2].append((node1, power_min, dist))
         self.nb_edges += 1
-    
-    def get_edges(self):
-        arcs=[]
-        for node1,nodes2 in self.graph.items():
-            for node in nodes2:
-                if ((node1,node[0],node[1],node[2]) not in arcs) and ((node[0],node1,node[1],node[2]) not in arcs):
-                    arcs.append((node1,node[0],node[1],node[2]))
-        return arcs  
-    
-    def get_path_with_power(self,src,dest,power,visited=None,path=None):
-        if visited is None:
-            visited = set()
-        if path is None:
-            path = []
-        path = path + [src]
-        visited.add(src)
-        if src == dest:
-           return path
-        for neighbor in self.graph[src]:
-            if neighbor[0] not in visited and power>=neighbor[1]:
-                new_path = self.get_path_with_power(neighbor[0], dest,power, visited,path)
-                if new_path is not None:
-                    return new_path
-        return None
 
-    def get_path_with_powerr(self,src,dest,power):
-        pile = [(src, [src], set())]
-        while pile:
-            node, path, visited = pile.pop()
-            visited.add(node)
+    def get_path_with_power(self,src,dest,power):
+        queue = deque([(src, [src])])
+        visited = set([src])
+        while queue:
+            (node, path) = queue.popleft()
             if node == dest:
                 return path
             for neighbor in self.graph[node]:
                 if neighbor[0] not in visited and power>=neighbor[1]:
-                    pile.append((neighbor[0], path + [neighbor[0]], visited.copy()))
+                    visited.add(neighbor[0])
+                    queue.append((neighbor[0], path + [neighbor[0]]))
         return None
-
-                                 
+                    
     def get_min_path_with_power(self, src, dest, power): #Dijkstra
         precedent = {x:None for x in self.nodes}
         dejaTraite = {x:False for x in self.nodes}
@@ -137,25 +117,26 @@ class Graph:
         return chemin
 
     def connected_components(self):
-        composantes_connexes=[]
-        visited_nodes={noeud:False for noeud in self.nodes}
-
-        def deep_parcours(s):
-            composantes=[s]
-            for neighboor in self.graph[s]:
-                neighboor=neighboor[0]
-                if not visited_nodes[neighboor]:
-                    visited_nodes[neighboor]=True
-                    composantes+=deep_parcours(neighboor)
-            return composantes
-        
-        for s in self.nodes:
-            if not visited_nodes[s]:
-                composantes_connexes.append(deep_parcours(s))
-        return composantes_connexes
+        def bfs(start_node, visited):
+            component = []
+            queue = deque([start_node])
+            visited[start_node] = True
+            while queue:
+                node = queue.popleft()
+                component.append(node)
+                for neighbor in self.graph[node]:
+                    if not visited[neighbor[0]]:
+                        visited[neighbor[0]] = True
+                        queue.append(neighbor[0])
+            return component
+        visited = {node:False for node in self.nodes}
+        components = []
+        for node in self.nodes:
+            if not visited[node]:
+                component = bfs(node, visited)
+                components.append(component)
+        return components
                       
-            
-
     def connected_components_set(self):
         """
         The result should be a set of frozensets (one per component), 
@@ -167,22 +148,21 @@ class Graph:
         """
         Should return path, min_power. 
         """
-        k=0
-        while self.get_path_with_power(src,dest,2**k)==None:
-            k+=1
-        list=[i for i in range(2**k+1)]
-        a = 0
-        b = len(list)-1
-        m = (a+b)//2
-        while a < b :
-            if self.get_path_with_power(src,dest,list[m])!=None:
-                b=m ##On n'exclut pas m
-            else:
-               a=m+1
-            m=(a+b)//2
-        return self.get_path_with_power(src,dest,list[a]),a
-
-
+        if self.get_path_with_power(src,dest,float("inf"))!=None:
+            self.power.sort()
+            a = 0
+            b = len(self.power)-1
+            m = (a+b)//2
+            while a < b :
+                if self.get_path_with_power(src,dest,self.power[m])!=None:
+                    b=m ##On n'exclut pas m
+                else:
+                    a=m+1
+                m=(a+b)//2
+            return self.get_path_with_power(src,dest,self.power[a]),self.power[a]
+        raise Exception("Il n'y a pas de chemin entre src et dest")
+ 
+    
 def graph_from_file(filename):
     """
     Reads a text file and returns the graph as an object of the Graph class.
@@ -211,17 +191,21 @@ def graph_from_file(filename):
             if len(edge) == 3:
                 node1, node2, power_min = int(edge[0]),int(edge[1]),int(edge[2])
                 g.add_edge(node1, node2, power_min) # will add dist=1 by default
+                g.edges.append((node1, node2, power_min,1))
+                g.power.append(power_min)
             elif len(edge) == 4:
                 node1, node2, power_min, dist = int(edge[0]),int(edge[1]),int(edge[2]),float(edge[3]) #Pour pouvoir lire 10
                 g.add_edge(node1, node2, power_min, dist)
+                g.edges.append((node1, node2, power_min,dist))
+                g.power.append(power_min)
             else:
                 raise Exception("Format incorrect")
     return g
 
-
 def kruskal(g):
+
     N=g.nb_nodes
-    arcs=g.get_edges()
+    arcs=g.edges
     arcs.sort(key=lambda x : x[2])
     Arbre_minimum=Graph(g.nodes)
     ed=UnionFind(N+1)
@@ -239,3 +223,46 @@ def kruskal(g):
             ed.Union(x,y)
     return Arbre_minimum
     
+def build_oriented_tree(g, root):
+        # Construire un arbre orienté des enfants vers les parents
+        oriented_tree = {root: []}
+        queue = deque([root])
+        visited = {root}
+        while queue:
+            parent = queue.popleft()
+            for child in g.graph[parent]:
+                if child[0] not in visited:
+                    visited.add(child[0])
+                    oriented_tree[child[0]] = [(parent,child[1],child[2])]
+                    queue.append(child[0])
+        return oriented_tree
+
+        
+def min_power_tree(tree,src,dest):
+    # Remonter les ancêtres de src
+    src_ancestors = []
+    curr = src
+    while curr!=1: #CHOIX ARBITRAIRE DE LA RACINE COMME ÉTANT 1
+        src_ancestors.append([curr,tree[curr][0][1]])
+        curr = tree[curr][0][0]
+    src_ancestors.append([1,-1])
+    # Remonter les ancêtres de dest
+    dest_ancestors = []
+    curr = dest
+    while curr!=1: #CHOIX ARBITRAIRE DE LA RACINE COMME ÉTANT 1while curr!=1: #CHOIX ARBITRAIRE DE LA RACINE COMME ÉTANT 1
+        dest_ancestors.append([curr,tree[curr][0][1]])
+        curr = tree[curr][0][0]
+    dest_ancestors.append([1,-1])
+    # Trouver l'indice du premier ancêtre commun entre src et dest
+    i = len(src_ancestors) - 1
+    j = len(dest_ancestors) - 1
+    while i >= 0 and j >= 0 and src_ancestors[i][0] == dest_ancestors[j][0]:
+        i -= 1
+        j -= 1
+    # Concaténer les chemins de src et dest jusqu'à l'ancêtre commun
+    path =src_ancestors[:i+2]
+    path[i+1][1]=-1
+    path.extend(reversed(dest_ancestors[:j+1]))
+    power, chemin=max([x[1] for x in path]), [i[0] for i in path]
+    return chemin,power
+
