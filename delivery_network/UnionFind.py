@@ -1,4 +1,17 @@
 class UnionFind:
+    """""   Class UnionFind
+    Attributs : 
+    -----------
+    parent : liste
+    rank : liste 
+
+    Methodes : 
+    ----------
+
+    get_parent(): obtenir le parent d'un noeud qui est un représentant d'un groupe de noeuds
+    Union(): permet de réunir deux groupes de noeuds
+    """
+
     def __init__(self, n):
         self.parent = list(range(n))
         self.rank = [0] * n
