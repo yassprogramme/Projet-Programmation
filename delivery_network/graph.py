@@ -490,21 +490,21 @@ def find_lca(src, dest, depth, ancestors):
     if depth[src] < depth[dest]:
         src, dest = dest, src
     # On remonte src à la même hauteur que dest
-    pow=0
+    pow=[0]
     for i in range(log_N,-1,-1):
         if depth[src]-2**i>=depth[dest]:
-            pow=max(ancestors[src][i][1],pow)
+            pow+=[ancestors[src][i][1]]
             src=ancestors[src][i][0]
     if src==dest:
-        return pow
+        return max(pow)
     for k in range(log_N,-1,-1):
         if (ancestors[dest][k][0]!=-1) and (ancestors[dest][k][0]!=ancestors[src][k][0]):
-            psrc=ancestors[src][k][1] # on conserve la puissance max du saut entre src et son ancêtre 2^j
-            pdest=ancestors[dest][k][1]# on conserve la puissance max du saut entre dest et son ancêtre 2^j
+            pow+=[ancestors[src][k][1]] # on conserve la puissance du saut entre src et son ancêtre 2^j
+            pow+=[ancestors[dest][k][1]]# on conserve la puissance du saut entre dest et son ancêtre 2^j
             dest=ancestors[dest][k][0]
             src=ancestors[src][k][0]
-            pow=max(pow,psrc,pdest) # On conserve la puissance max entre tous les sauts et les sauts précédents
-    return max(pow,ancestors[src][0][1],ancestors[dest][0][1])
+    pow+=[ancestors[src][0][1],ancestors[dest][0][1]] # On conserve la puissance max entre tous les sauts et les sauts précédents
+    return max(pow) # On prend le max de toutes les puissances enregistrées pour arriver au LCA
 
 
 
