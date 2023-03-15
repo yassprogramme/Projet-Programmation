@@ -143,6 +143,7 @@ f.close()
 
 
 #%%
+from time import perf_counter
 def tps_calcul2(T,x):
     tstart=perf_counter()
     route="routes."+str(x)+".in"
@@ -189,6 +190,7 @@ f.close()
 
 
 # %%
+from time import perf_counter
 def tps_calcul3(depth,ancestors,x):
     tstart=perf_counter()
     route="routes."+str(x)+".in"
