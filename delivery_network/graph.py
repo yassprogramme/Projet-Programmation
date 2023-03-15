@@ -222,7 +222,7 @@ class Graph:
 
         Complexity : O(Nlog(N)) car on trie les puissances. La dichtomie est en log(N) N nb d'arrêtes
         """
-        if self.get_path_with_power(src,dest,float("inf"))!=None:
+        if self.get_path_with_power(src,dest,float("inf"))!=None: #On vérifie que c'est dans la même composante connexe
             self.power.sort()
             a = 0
             b = len(self.power)-1
@@ -314,7 +314,10 @@ def kruskal(g):
 
             ed.Union(x,y)
     return Arbre_minimum
+
+
     #####SEANCE 2 QUESTION 14 : PRÉPROCESSING#######
+    
 def build_oriented_tree(g, root):
     """""   Fonction : kruskal
     Description:
