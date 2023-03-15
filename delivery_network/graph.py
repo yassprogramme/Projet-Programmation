@@ -429,9 +429,9 @@ def table_ancestors_power_2(tree):#Arbre orienté enfants vers parents
     for j in range(1,int(log2(N))+1):
         for v in tree.keys():
             if up[v][j-1][0]!=-1 and up[up[v][j-1][0]][j-1][0]!=-1:#La deuxième condition signifie qu'on saute des ancêtres en restant dans l'arbre
-                up[v][j]=up[up[v][j-1][0]][j-1][0],max(up[v][j-1][1],up[up[v][j-1][0]][j-1][1]) # On fait le max entre src et son ancêtre 2^(j-1) et entre ce dernier et l'ancêtre 2^j
+                up[v][j]=up[up[v][j-1][0]][j-1][0],max(up[v][j-1][1],up[up[v][j-1][0]][j-1][1]) #La première égalité : relation de récurrence pour sauter en 2^j ,On fait le max entre src et son ancêtre 2^(j-1) et entre ce dernier et l'ancêtre 2^j
             elif up[v][j-1][0]!=-1 and up[up[v][j-1][0]][j-1][0]==-1:
-                up[v][j]=up[up[v][j-1][0]][j-1][0],0 # C'est juste pour ramener la puissance à 0 quand on sort de l'arbre
+                up[v][j]=up[up[v][j-1][0]][j-1][0],0 #C'est juste pour ramener la puissance à 0 quand on sort de l'arbre
     return up
 
 def depths_nodes(mst): ## MST fait par kruskal, profondeur fait à partir de la racine 1
