@@ -5,6 +5,8 @@ sys.setrecursionlimit(500000)
 from graph import Graph, graph_from_file, kruskal,build_oriented_tree,min_power_tree,depths_nodes,table_ancestors_power_2,find_lca
 from UnionFind import UnionFind
 
+"On peut effectuer tout le processing en faisant des boucles for mais ça perd en lisibilité."
+
 data_path="/Users/y.boukhateb/Desktop/COURS/Programmation/ensae-prog23/input/"
 file_name1 = "network.1.in"
 g1= graph_from_file(data_path+file_name1)
@@ -75,6 +77,8 @@ mst10=kruskal(g10)
 T10=build_oriented_tree(mst10,1)
 D10=depths_nodes(mst10)
 Ancestors10=table_ancestors_power_2(T10)
+
+
 #%%
 data_path1="/Users/y.boukhateb/Desktop/COURS/Programmation/ensae-prog23/input/"
 data_path2="/Users/y.boukhateb/Desktop/COURS/Programmation/ensae-prog23/output/"
@@ -99,6 +103,10 @@ routes_out(T7,7)
 routes_out(T8,8)
 routes_out(T9,9)
 routes_out(T10,10)
+
+
+
+
 
 #%%
 from time import perf_counter
@@ -128,6 +136,12 @@ for x in range(1, 11):
     f.write("routes"+str(x)+": "+str(t)+"sec = "+str(t/60)+"min"+"\n")
 
 f.close()
+
+
+
+
+
+
 #%%
 def tps_calcul2(T,x):
     tstart=perf_counter()
@@ -166,6 +180,14 @@ f.write("routes 8 :"+str(t8)+"sec =" +str(t8/60)+"min"+"\n")
 f.write("routes 9 :"+str(t9)+"sec =" +str(t9/60)+"min"+"\n")
 f.write("routes 10 :"+str(t10)+"sec =" +str(t10/60)+"min"+"\n")
 f.close()
+
+
+
+
+
+
+
+
 # %%
 def tps_calcul3(depth,ancestors,x):
     tstart=perf_counter()
