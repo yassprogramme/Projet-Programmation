@@ -91,7 +91,7 @@ class Graph:
 
         Outputs:
         -------
-        Si i y a un chemin output = liste du chemin
+        Si il y a un chemin output = liste du chemin
         sinon None
 
         Complexity : O(N) BFS
@@ -319,17 +319,18 @@ def kruskal(g):
     #####SEANCE 2 QUESTION 14 : PRÉPROCESSING#######
     
 def build_oriented_tree(g, root):
-    """""   Fonction : kruskal
+    """""   Fonction :build_oriented
     Description:
     -----------
-    Permet d'envoyer un objet de la Class Graph qui est un arbre couvrant de poids minimal.
+    Permet d'orienter le MST des enfants vers les parents ou bien autrement dit avoir tous les parents de chaque noeud
     input:
     ------
-    g : une instance de la classe graph
+    g : Un arbre couvrant minimal
+    root: La racine de l'arbre choisi arbitrairement en 1
 
     output:
     -------
-    une instance de la classe graph
+    Un dictionnaire
     
     Complexity : c'est un BFS donc O(N)
 
@@ -505,6 +506,7 @@ def find_lca(src, dest, depth, ancestors):
             src=ancestors[src][k][0]
     pow+=[ancestors[src][0][1],ancestors[dest][0][1]] # On conserve la puissance max entre tous les sauts et les sauts précédents
     return max(pow) # On prend le max de toutes les puissances enregistrées pour arriver au LCA
+
 
 
 
