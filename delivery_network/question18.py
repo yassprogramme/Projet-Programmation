@@ -1,4 +1,22 @@
 def trucks_filtre(filename):
+    """""   Fonction : trucks_filtre
+    Description:
+    -----------
+    on  effectue un tri sur le fichier : si c1=c2, on prend le camion le plus puissant et si p1=p2, 
+    on prend le camion le moins cher.
+    input:
+    ------
+    Fichier trucks.x.in
+
+    output:
+    -------
+    Liste des camions triés, les moins chères pour une puissance donnée
+
+    Complexité:
+    -------
+    O(C) avec C le nombre de camions
+
+    """
     with open(filename, 'r') as file:
         nb_trucks=int(file.readline())
         trucks=[]
@@ -14,6 +32,24 @@ def trucks_filtre(filename):
     return trucks_filtre[::-1]
 
 def process_knapsack(filename,trucks_filtre):
+    """""   Fonction : process_knapsack
+    Description:
+    -----------
+    On veut construire la liste des éléments pouvant être mis dans le sac à dos. Chaque trajet du fichier routes.x.out lui est le 
+    camion le moins cher avec une puissance suffisante. Ainsi, l'analogie avec le problème du sac à dos revient à mettre dans le sac 
+    des camions associés à un trajet qui ont donc un coût et une valeur : le profit du camion.
+    input:
+    ------
+    Fichier routes.x.out et trucks_filtre
+
+    output:
+    -------
+    Les camions associés à leur trajet pouvant être mis dans le sac à dos.
+    Complexité:
+    -------
+    O(T+C) avec C le nombre de camions et T le nombre de trajets.
+
+    """
     with open(filename,'r') as file:
         nb_path=int(file.readline())
         path=[]
@@ -33,8 +69,67 @@ def process_knapsack(filename,trucks_filtre):
         if i>=len(path):
             return knapsack
 
-B=25*10**9
+B=25*10**9 #BUDGET
+def sol_exacte(knapsack):
+    """""   Fonction : sol_exacte
+    Description:
+    -----------
+    On donne la solution exacte au problème du sac à dos
+    input:
+    ------
+    Knapsack
+
+    output:
+    -------
+    Les camions associés à leur trajet pouvant être mis dans le sac à dos.
+    Complexité:
+    -------
+    O(T*B) avec T le nombre de trajet
+
+    """
+    matrice = {0:np.zeros(B+1,dtype=int)}
+    for i in range(1, len(knapsack) + 1):
+        for w in range(0, B+1):
+            print(w)
+            if knapsack[i-1][1] <= w:
+                matrice[i].append(max(knapsack[i-1][2] + matrice[i-1][w-knapsack[i-1][1]], matrice[i-1][w]))
+            else:
+                matrice[i].append(matrice[i-1][w])
+            
+    # Retrouver les éléments en fonction de la somme
+    w = B
+    n = len(knapsack)
+    elements_selection = []
+
+    while w >= 0 and n >= 0:
+        e = knapsack[n-1]
+        if matrice[n][w] == matrice[n-1][w-e[1]] + e[2]:
+            elements_selection.append(e)
+            w -= e[1]
+
+        n -= 1
+
+    return elements_selection, matrice[-1][-1]
+
 def whatisinmybag(knapsack):
+    """""   Fonction : whatisinmybag
+    Description:
+    -----------
+    On donne une solution approchée des camions à acheter et des trajets à effectuer pour maximiser le profit
+    input:
+    ------
+    Knapsack
+
+    output:
+    -------
+    Les camions associés à leur trajet pouvant être mis dans le sac à dos.
+
+    Complexité:
+    -------
+    O(Tlog(T)) avec T le nombre de trajet
+
+    """
+
     knapsack.sort(key=lambda x: x[1]/x[2])
     Mybag=[]
     k=0
@@ -52,32 +147,7 @@ def whatisinmybag(knapsack):
     return Mybag,S
 
 
-def sacADos_dynamique(knapsack):
-    matrice = np.array([[0 for _ in range(B+ 1)] for x in range(len(knapsack) + 1)])
-    print(matrice)
-    for i in range(1, len(knapsack) + 1):
-        print(i)
-        for w in range(1, B+1):
-            print(w)
-            if knapsack[i-1][1] <= w:
-                matrice[i][w] = max(knapsack[i-1][2] + matrice[i-1][w-knapsack[i-1][1]], matrice[i-1][w])
-            else:
-                matrice[i][w] = matrice[i-1][w]
-            
-    # Retrouver les éléments en fonction de la somme
-    w = B
-    n = len(knapsack)
-    elements_selection = []
 
-    while w >= 0 and n >= 0:
-        e = knapsack[n-1]
-        if matrice[n][w] == matrice[n-1][w-e[1]] + e[2]:
-            elements_selection.append(e)
-            w -= e[1]
-
-        n -= 1
-
-    return matrice[-1][-1], elements_selection
     
 
 

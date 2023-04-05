@@ -15,8 +15,9 @@ file_name1 = "trucks.1.in"
 #print(find_lca(47762,47762,D,Ancestors))
 #print(min_power_tree(T,47762,47762))
 T=trucks_filtre(data_path+file_name1)
-#K=process_knapsack(("output/routes.1.out"),T)
-print(K)
-print(whatisinmybag(K))
-print(sacADos_dynamique(K))
+K=process_knapsack(("output/routes.1.out"),T)
+print(len(whatisinmybag(K)[0]))
+
+
+
 
