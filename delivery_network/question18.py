@@ -87,7 +87,7 @@ def sol_exacte(knapsack):
     O(T*B) avec T le nombre de trajet
 
     """
-    matrice = {0:np.zeros(B+1,dtype=int)}
+    matrice = [[0 for x in range(B + 1)] for x in range(len(knapsack) + 1)]
     for i in range(1, len(knapsack) + 1):
         for w in range(0, B+1):
             print(w)
@@ -110,6 +110,8 @@ def sol_exacte(knapsack):
         n -= 1
 
     return elements_selection, matrice[-1][-1]
+
+
 
 def whatisinmybag(knapsack):
     """""   Fonction : whatisinmybag
