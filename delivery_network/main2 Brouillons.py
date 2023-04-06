@@ -1,7 +1,7 @@
 import sys
 sys.setrecursionlimit(500000)
 #from graph import Graph, graph_from_file, kruskal,build_oriented_tree,table_ancestors_power_2,depths_nodes,find_lca,min_power_tree
-from question18 import trucks_filtre, process_knapsack,whatisinmybag, sacADos_dynamique
+from question18 import trucks_filtre, process_knapsack,whatisinmybag, sol_exacte,estimation
 from UnionFind import UnionFind
 from time import perf_counter
 data_path="input/"
@@ -15,8 +15,11 @@ file_name1 = "trucks.1.in"
 #print(find_lca(47762,47762,D,Ancestors))
 #print(min_power_tree(T,47762,47762))
 T=trucks_filtre(data_path+file_name1)
-K=process_knapsack(("output/routes.1.out"),T)
-print(len(whatisinmybag(K)[0]))
+K=process_knapsack(("output/routes.3.out"),T)
+
+
+print(K)
+
 
 
 

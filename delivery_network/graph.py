@@ -127,7 +127,7 @@ class Graph:
         Si src et dest ne sont pas dans la même composante connexe output = None
         sinon return un couple contenant le chemin et la puissance.
         
-        Complexity : O(Nlog(N)) on parcourt chaque noeud mais trier à chaque fois
+        Complexity : O(N^2log(N)) on parcourt chaque noeud mais trier à chaque fois
         '''
 
         precedent = {x:None for x in self.nodes}

@@ -1,3 +1,5 @@
+import numpy as np
+from time import perf_counter
 def trucks_filtre(filename):
     """""   Fonction : trucks_filtre
     Description:
@@ -87,14 +89,14 @@ def sol_exacte(knapsack):
     O(T*B) avec T le nombre de trajet
 
     """
-    matrice = [[0 for x in range(B + 1)] for x in range(len(knapsack) + 1)]
+    matrice = np.zeros((len(knapsack),B))
     for i in range(1, len(knapsack) + 1):
-        for w in range(0, B+1):
-            print(w)
+        for w in range(1, B+1):
             if knapsack[i-1][1] <= w:
-                matrice[i].append(max(knapsack[i-1][2] + matrice[i-1][w-knapsack[i-1][1]], matrice[i-1][w]))
+                matrice[i][w]=max(knapsack[i-1][2] + matrice[i-1][w-knapsack[i-1][1]], matrice[i-1][w])
             else:
-                matrice[i].append(matrice[i-1][w])
+                matrice[i][w]=matrice[i-1][w]
+            print(matrice)
             
     # Retrouver les éléments en fonction de la somme
     w = B
@@ -104,12 +106,57 @@ def sol_exacte(knapsack):
     while w >= 0 and n >= 0:
         e = knapsack[n-1]
         if matrice[n][w] == matrice[n-1][w-e[1]] + e[2]:
-            elements_selection.append(e)
+            elements_selection.append(e[0],e[1],e[3],e[4])
             w -= e[1]
 
         n -= 1
 
     return elements_selection, matrice[-1][-1]
+
+#Estimation de temps de l'algo ci dessus
+def estimation(knapsack):
+    """""   Fonction : estimation
+    Description:
+    -----------
+    On applique l'algorithme précédent sur trucks.1.in et routes.1.out mais en réduisant le budget.
+    input:
+    ------
+    Knapsack
+
+    output:
+    -------
+    Les camions associés à leur trajet pouvant être mis dans le sac à dos.
+    Complexité:
+    -------
+    O(T*B2) avec T le nombre de trajet
+
+    """
+    B2=100000
+    KP=140
+    tstart=perf_counter()
+    matrice = np.zeros((KP+1,B2+1))
+    for i in range(1, KP+ 1):
+        for w in range(1, B2+1):
+            if knapsack[i-1][1] <= w:
+                matrice[i][w]=max(knapsack[i-1][2] + matrice[i-1][w-knapsack[i-1][1]], matrice[i-1][w])
+            else:
+                matrice[i][w]=matrice[i-1][w]
+            
+    # Retrouver les éléments en fonction de la somme
+    w = B2
+    n = KP
+    elements_selection = []
+
+    while w >= 0 and n >= 0:
+        e = knapsack[n-1]
+        
+        if w-e[1]>=0 and matrice[n][w] == matrice[n-1][w-e[1]] + e[2]:
+            elements_selection.append((e[0],e[1],e[3],e[4]))
+            w-=e[1]
+
+        n -= 1
+    tend=perf_counter()
+    return (tend-tstart)*(B/B2)*(len(knapsack)/KP)*(1/3600)
 
 
 
