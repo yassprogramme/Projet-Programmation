@@ -16,8 +16,6 @@ file_name1 = "trucks.1.in"
 #print(min_power_tree(T,47762,47762))
 T=trucks_filtre(data_path+file_name1)
 K=process_knapsack(("output/routes.3.out"),T)
-
-
 print(K)
 
 

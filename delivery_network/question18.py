@@ -131,8 +131,8 @@ def estimation(knapsack):
     O(T*B2) avec T le nombre de trajet
 
     """
-    B2=100000
-    KP=140
+    B2=100000 #On réduit le budget 
+    KP=140 # On réduit le nombre d'objet à traiter
     tstart=perf_counter()
     matrice = np.zeros((KP+1,B2+1))
     for i in range(1, KP+ 1):
@@ -156,7 +156,7 @@ def estimation(knapsack):
 
         n -= 1
     tend=perf_counter()
-    return (tend-tstart)*(B/B2)*(len(knapsack)/KP)*(1/3600)
+    return (tend-tstart)*(B/B2)*(len(knapsack)/KP)*(1/3600)#On fait un produit en croix et on ramène en heures
 
 
 
@@ -179,7 +179,7 @@ def whatisinmybag(knapsack):
 
     """
 
-    knapsack.sort(key=lambda x: x[1]/x[2])
+    knapsack.sort(key=lambda x: x[1]/x[2]) #Tri décroissant par le rapport profit/cout
     Mybag=[]
     k=0
     S=0
